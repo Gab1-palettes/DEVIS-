@@ -6,7 +6,7 @@
     <title>Devis - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style>
+<style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -79,7 +79,7 @@
     </style>
 </head>
 <body>
-    <div class="form-container">
+    <div>
         <h1>Créer un devis</h1>
         <form id="quoteForm">
             <label for="companyName">Nom de l'entreprise :</label>
@@ -99,6 +99,9 @@
             <label for="quantity">Quantité :</label>
             <input type="number" id="quantity" min="1" required>
 
+            <label for="distance">Distance en km :</label>
+            <input type="number" id="distance" min="1" required>
+
             <button type="button" onclick="generatePDF()">Télécharger le devis</button>
         </form>
     </div>
@@ -112,6 +115,7 @@
             const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
             const quantity = parseInt(document.getElementById("quantity").value);
+            const distance = parseInt(document.getElementById("distance").value);
 
             // Tarifs par type de palette
             const prices = {
@@ -122,9 +126,17 @@
             };
             const pricePerUnit = prices[paletteType];
             const totalHT = pricePerUnit * quantity;
+
+            // Calcul coût transport
+            const timeInHours = distance / 80; // Temps de trajet
+            const transportCost = timeInHours * 63; // Coût brut
+            const transportWithMargin = transportCost * 1.2; // Coût avec marge
+
+            // Totaux
+            const totalHTWithTransport = totalHT + transportWithMargin;
             const tvaRate = 0.2;
-            const totalTVA = totalHT * tvaRate;
-            const totalTTC = totalHT + totalTVA;
+            const totalTVA = totalHTWithTransport * tvaRate;
+            const totalTTC = totalHTWithTransport + totalTVA;
 
             // Initialisation jsPDF
             const doc = new jsPDF();
@@ -152,8 +164,8 @@
 
             // Totaux
             const totalsY = doc.lastAutoTable.finalY + 10;
-            doc.rect(30, totalsY, 150, 40); // Encadré
-            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 35, totalsY + 10);
+            doc.rect(30, totalsY, 150, 60); // Encadré
+            doc.text(`Base HT : ${totalHTWithTransport.toFixed(2)} €`, 35, totalsY + 10);
             doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 35, totalsY + 20);
             doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 35, totalsY + 30);
             doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 35, totalsY + 40);
