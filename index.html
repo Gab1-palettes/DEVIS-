@@ -167,11 +167,27 @@
 
             // Totaux
             const totalsY = doc.lastAutoTable.finalY + 10;
-            doc.rect(30, totalsY, 150, 60); // Encadré
-            doc.text(`Base HT : ${totalHTWithTransport.toFixed(2)} €`, 35, totalsY + 10);
-            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 35, totalsY + 20);
-            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 35, totalsY + 30);
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 35, totalsY + 40);
+            doc.text(`Base HT : ${totalHTWithTransport.toFixed(2)} €`, 30, totalsY + 10);
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 30, totalsY + 20);
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 30, totalsY + 30);
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 30, totalsY + 40);
+
+            // Bon pour accord
+            doc.text("Bon pour accord :", 30, totalsY + 60);
+            doc.rect(30, totalsY + 70, 150, 30); // Encadré pour la signature
+            doc.text("Nom : ____________________", 40, totalsY + 85);
+            doc.text("Date : ____________________", 40, totalsY + 95);
+            doc.text("Signature : ____________________", 40, totalsY + 105);
+
+            // Mentions légales
+            doc.setFontSize(10);
+            doc.text("S.I.R.E.T. : 44390842100011 | TVA Intra : FR53443908421 | Capital : 300 281,00 Euros | N.A.F. : 1624Z", 30, totalsY + 130);
+
+            // CGV
+            doc.text("CONDITIONS GENERALES DE VENTE", 30, totalsY + 150);
+            doc.setFontSize(9);
+            doc.text("1. Les présentes conditions générales s'appliquent à toutes nos ventes.", 30, totalsY + 160);
+            doc.text("2. En cas de litige, le tribunal de commerce de Saintes sera compétent.", 30, totalsY + 170);
 
             // Télécharger le devis
             doc.save(`Devis-${companyName}.pdf`);
@@ -179,4 +195,3 @@
     </script>
 </body>
 </html>
-
