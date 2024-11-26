@@ -109,11 +109,11 @@
     <script>
         function parseTravelTime(timeString) {
             const [hours, minutes] = timeString.split(":").map(Number);
-            return hours + minutes / 60;
+            return hours + (minutes / 60);
         }
 
         function convertToTruckTime(carTimeInHours) {
-            return carTimeInHours * 1.2 + 0.75; // 1.2 pour le camion + 45 minutes de déchargement
+            return carTimeInHours * 1.2 + 0.75; // 1.2 pour le camion + 45 min de déchargement
         }
 
         async function generatePDF() {
@@ -126,13 +126,13 @@
             const quantity = parseInt(document.getElementById("quantity").value);
             const travelTime = document.getElementById("travelTime").value;
 
-            // Calcul du temps et coût transport
+            // Calcul transport
             const carTimeInHours = parseTravelTime(travelTime);
             const truckTimeInHours = convertToTruckTime(carTimeInHours);
             const transportCost = truckTimeInHours * 63;
             const transportWithMargin = transportCost * 1.2;
 
-            // Tarifs par type de palette
+            // Tarifs palettes
             const prices = {
                 "600x800": 6.5,
                 "800x1200": 9.8,
@@ -140,9 +140,10 @@
                 "1000x1200-ceinture": 15.0,
             };
             const pricePerUnit = prices[paletteType];
-            const totalHT = pricePerUnit * quantity + transportWithMargin;
+            const palettesTotalHT = pricePerUnit * quantity;
 
             // Totaux
+            const totalHT = palettesTotalHT + transportWithMargin;
             const tvaRate = 0.2;
             const totalTVA = totalHT * tvaRate;
             const totalTTC = totalHT + totalTVA;
@@ -168,7 +169,7 @@
                 startY: 110,
                 head: [["Désignation", "Quantité", "P.U. HT (€)", "Montant HT (€)"]],
                 body: [
-                    [paletteType, quantity, pricePerUnit.toFixed(2), (pricePerUnit * quantity).toFixed(2)],
+                    [paletteType, quantity, pricePerUnit.toFixed(2), palettesTotalHT.toFixed(2)],
                     ["Transport", "-", "-", transportWithMargin.toFixed(2)],
                 ],
                 theme: "grid",
