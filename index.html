@@ -195,3 +195,205 @@
     </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devis Professionnel - Palettes Distribution</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4caf50, #2196f3, #f44336, #ddd);
+            background-size: 400% 400%;
+            animation: gradientBG 8s infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #4caf50, #2196f3);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #2196f3, #4caf50);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Créer un devis</h1>
+        <form id="quoteForm">
+            <label for="companyName">Nom de l'entreprise :</label>
+            <input type="text" id="companyName" required>
+
+            <label for="address">Adresse :</label>
+            <input type="text" id="address" required>
+
+            <label for="paletteType">Type de palette :</label>
+            <select id="paletteType" required>
+                <option value="600x800">600x800</option>
+                <option value="800x1200">800x1200</option>
+                <option value="1000x1200">1000x1200</option>
+                <option value="1000x1200-ceinture">1000x1200 ceinturé</option>
+            </select>
+
+            <label for="quantity">Quantité :</label>
+            <input type="number" id="quantity" min="1" required>
+
+            <label for="travelTime">Temps de trajet en voiture (h:mm) :</label>
+            <input type="text" id="travelTime" placeholder="Exemple : 1:58" required>
+
+            <button type="button" onclick="generatePDF()">Télécharger le devis</button>
+        </form>
+    </div>
+
+    <script>
+        function parseTravelTime(timeString) {
+            const [hours, minutes] = timeString.split(":").map(Number);
+            return hours + minutes / 60;
+        }
+
+        function convertToTruckTime(carTimeInHours) {
+            return carTimeInHours * 1.2 + 0.75; // 1.2 pour le camion + 45 minutes de déchargement
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+
+            // Récupération des données saisies
+            const companyName = document.getElementById("companyName").value;
+            const address = document.getElementById("address").value;
+            const paletteType = document.getElementById("paletteType").value;
+            const quantity = parseInt(document.getElementById("quantity").value);
+            const travelTime = document.getElementById("travelTime").value;
+
+            // Calcul du temps et coût transport
+            const carTimeInHours = parseTravelTime(travelTime);
+            const truckTimeInHours = convertToTruckTime(carTimeInHours);
+            const transportCost = truckTimeInHours * 63;
+            const transportWithMargin = transportCost * 1.2;
+
+            // Tarifs par type de palette
+            const prices = {
+                "600x800": 6.5,
+                "800x1200": 9.8,
+                "1000x1200": 12.5,
+                "1000x1200-ceinture": 15.0,
+            };
+            const pricePerUnit = prices[paletteType];
+            const totalHT = pricePerUnit * quantity + transportWithMargin;
+
+            // Totaux
+            const tvaRate = 0.2;
+            const totalTVA = totalHT * tvaRate;
+            const totalTTC = totalHT + totalTVA;
+
+            // Initialisation jsPDF
+            const doc = new jsPDF();
+
+            // En-tête
+            doc.setFontSize(12);
+            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 30, 20);
+            doc.text("4 ZA DU MILAN - BP 40002", 30, 30);
+            doc.text("17 210 MONTLIEU LA GARDE", 30, 40);
+            doc.text("E-mail : contact@palettes-distribution.com", 30, 50);
+            doc.text("Tél. : 05 46 04 39 95", 30, 60);
+
+            // Infos client
+            doc.text(`Devis pour : ${companyName}`, 30, 80);
+            doc.text(`Adresse : ${address}`, 30, 90);
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 30, 100);
+
+            // Tableau des détails
+            doc.autoTable({
+                startY: 110,
+                head: [["Désignation", "Quantité", "P.U. HT (€)", "Montant HT (€)"]],
+                body: [
+                    [paletteType, quantity, pricePerUnit.toFixed(2), (pricePerUnit * quantity).toFixed(2)],
+                    ["Transport", "-", "-", transportWithMargin.toFixed(2)],
+                ],
+                theme: "grid",
+            });
+
+            // Totaux
+            const totalsY = doc.lastAutoTable.finalY + 10;
+            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 30, totalsY + 10);
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 30, totalsY + 20);
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 30, totalsY + 30);
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 30, totalsY + 40);
+
+            // Bon pour accord
+            doc.text("Bon pour accord :", 30, totalsY + 60);
+            doc.rect(30, totalsY + 70, 150, 30); // Encadré pour la signature
+            doc.text("Nom : ____________________", 40, totalsY + 75);
+            doc.text("Date : ____________________", 40, totalsY + 85);
+            doc.text("Signature : ____________________", 40, totalsY + 95);
+
+            // Mentions légales
+            doc.setFontSize(10);
+            doc.text("S.I.R.E.T. : 44390842100011 | TVA Intra : FR53443908421 | Capital : 300 281,00 Euros | N.A.F. : 1624Z", 30, totalsY + 130);
+
+            // Télécharger le devis
+            doc.save(`Devis-${companyName}.pdf`);
+        }
+    </script>
+</body>
+</html>
+
