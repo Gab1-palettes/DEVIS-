@@ -150,91 +150,93 @@
         </form>
     </div>
 
-    <script>
-        async function generatePDF() {
-            const { jsPDF } = window.jspdf;
+   <script>
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
 
-            // Récupérer les données du formulaire
-            const companyName = document.getElementById("companyName").value;
-            const address = document.getElementById("address").value;
-            const paletteType = document.getElementById("paletteType").value;
-            const quantity = parseInt(document.getElementById("quantity").value);
+        // Récupérer les données du formulaire
+        const companyName = document.getElementById("companyName").value;
+        const address = document.getElementById("address").value;
+        const paletteType = document.getElementById("paletteType").value;
+        const quantity = parseInt(document.getElementById("quantity").value);
 
-            // Tarifs
-            const pricePerPallet = {
-                "60x80": 5.5,
-                "80x120": 9.8,
-                "100x120": 12.5,
-                "100x120-ceinture": 15.0
-            };
-            const transportCost = 150;
-            const tvaRate = 0.2;
-            
-            // Calculs
-            const totalHT = (pricePerPallet[paletteType] * quantity) + transportCost;
-            const totalTVA = totalHT * tvaRate;
-            const totalTTC = totalHT + totalTVA;
+        // Tarifs
+        const pricePerPallet = {
+            "60x80": 5.5,
+            "80x120": 9.8,
+            "100x120": 12.5,
+            "100x120-ceinture": 15.0
+        };
+        const transportCost = 150;
+        const tvaRate = 0.2;
+        
+        // Calculs
+        const totalHT = (pricePerPallet[paletteType] * quantity) + transportCost;
+        const totalTVA = totalHT * tvaRate;
+        const totalTTC = totalHT + totalTVA;
 
-            // Génération du PDF
-            const doc = new jsPDF();
+        // Génération du PDF
+        const doc = new jsPDF();
 
-            const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcAAAAHACAYAAABPuoP8AAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4...";
+        const logoBase64 = "data:image/png;base64,..."; // Remplacez par la version complète
 
-            // Ajouter le logo en haut du PDF
-            doc.addImage(logoBase64, "PNG", 10, 10, 50, 20);
+        // Ajouter le logo en haut du PDF
+        doc.addImage(logoBase64, "PNG", 10, 10, 50, 20);
 
-            // En-tête
-            doc.setFontSize(12);
-            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 10, 10);
-            doc.text("4 ZA DU MILAN - BP 40002", 10, 15);
-            doc.text("17 210 MONTLIEU LA GARDE", 10, 20);
-            doc.text("E-mail : contact@palettes-distribution.com", 10, 25);
-            doc.text("Téléphone : 05 46 04 39 95", 10, 30);
+        // En-tête
+        doc.setFontSize(12);
+        const headerStartY = 40; // Ajustement pour éviter le chevauchement avec le logo
+        doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 10, headerStartY);
+        doc.text("4 ZA DU MILAN - BP 40002", 10, headerStartY + 5);
+        doc.text("17 210 MONTLIEU LA GARDE", 10, headerStartY + 10);
+        doc.text("E-mail : contact@palettes-distribution.com", 10, headerStartY + 15);
+        doc.text("Téléphone : 05 46 04 39 95", 10, headerStartY + 20);
 
-            // Mentions légales
-            doc.setFontSize(10);
-            doc.text("S.I.R.E.T. : 44390842100011", 10, 35);
-            doc.text("TVA Intra : FR53443908421", 10, 40);
-            doc.text("Capital : 300 281,00 Euros", 10, 45);
-            doc.text("N.A.F. : 1624Z", 10, 50);
+        // Mentions légales
+        const legalStartY = headerStartY + 30;
+        doc.setFontSize(10);
+        doc.text("S.I.R.E.T. : 44390842100011", 10, legalStartY);
+        doc.text("TVA Intra : FR53443908421", 10, legalStartY + 5);
+        doc.text("Capital : 300 281,00 Euros", 10, legalStartY + 10);
+        doc.text("N.A.F. : 1624Z", 10, legalStartY + 15);
 
-            // Infos client
-            doc.text(`Devis pour : ${companyName}`, 10, 65);
-            doc.text(`Adresse : ${address}`, 10, 70);
-            doc.text(`Date : ${new Date().toLocaleDateString()}`, 10, 75);
+        // Infos client
+        const clientInfoStartY = legalStartY + 25;
+        doc.text(`Devis pour : ${companyName}`, 10, clientInfoStartY);
+        doc.text(`Adresse : ${address}`, 10, clientInfoStartY + 5);
+        doc.text(`Date : ${new Date().toLocaleDateString()}`, 10, clientInfoStartY + 10);
 
-            // Tableau des détails
-            doc.autoTable({
-                startY: 80,
-                head: [["Type de palette", "Quantité", "Prix unitaire HT (€)", "Montant HT (€)"]],
-                body: [
-                    [paletteType, quantity, pricePerPallet[paletteType].toFixed(2), (pricePerPallet[paletteType] * quantity).toFixed(2)],
-                    ["Transport", "-", "-", transportCost.toFixed(2)]
-                ]
-            });
+        // Tableau des détails
+        const tableStartY = clientInfoStartY + 15;
+        doc.autoTable({
+            startY: tableStartY,
+            head: [["Type de palette", "Quantité", "Prix unitaire HT (€)", "Montant HT (€)"]],
+            body: [
+                [paletteType, quantity, pricePerPallet[paletteType].toFixed(2), (pricePerPallet[paletteType] * quantity).toFixed(2)],
+                ["Transport", "-", "-", transportCost.toFixed(2)]
+            ]
+        });
 
-            // Totaux encadrés
-            const finalY = doc.lastAutoTable.finalY + 10;
-            doc.setDrawColor(0);
-            doc.setFillColor(240);
-            doc.rect(10, finalY, 190, 20, "F");
-            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 12, finalY + 5);
-            doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 12, finalY + 10);
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 12, finalY + 15);
+        // Totaux encadrés
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setDrawColor(0);
+        doc.setFillColor(240);
+        doc.rect(10, finalY, 190, 20, "F");
+        doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 12, finalY + 5);
+        doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 12, finalY + 10);
+        doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 12, finalY + 15);
 
-            // Section "Bon pour accord"
-            const bonAccordY = finalY + 30;
-            doc.setFontSize(12);
-            doc.setDrawColor(0);
-            doc.rect(10, bonAccordY, 190, 30, "S");
-            doc.text("Bon pour accord :", 12, bonAccordY + 10);
-            doc.text("Nom :", 12, bonAccordY + 20);
-            doc.text("Date :", 80, bonAccordY + 20);
-            doc.text("Signature :", 140, bonAccordY + 20);
+        // Section "Bon pour accord"
+        const bonAccordY = finalY + 30;
+        doc.setFontSize(12);
+        doc.setDrawColor(0);
+        doc.rect(10, bonAccordY, 190, 30, "S");
+        doc.text("Bon pour accord :", 12, bonAccordY + 10);
+        doc.text("Nom :", 12, bonAccordY + 20);
+        doc.text("Date :", 80, bonAccordY + 20);
+        doc.text("Signature :", 140, bonAccordY + 20);
 
-            // Téléchargement
-            doc.save(`Devis-${companyName}.pdf`);
-        }
-    </script>
-</body>
-</html>
+        // Téléchargement
+        doc.save(`Devis-${companyName}.pdf`);
+    }
+</script>
