@@ -134,16 +134,16 @@
 
             // En-tête à droite
             doc.setFontSize(12);
-            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 140, 20, { align: "right" });
-            doc.text("4 ZA DU MILAN - BP 40002", 140, 30, { align: "right" });
-            doc.text("17 210 MONTLIEU LA GARDE", 140, 40, { align: "right" });
-            doc.text("E-mail : contact@palettes-distribution.com", 140, 50, { align: "right" });
-            doc.text("Tél. : 05 46 04 39 95", 140, 60, { align: "right" });
+            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 40, 20, { align: "right" });
+            doc.text("4 ZA DU MILAN - BP 40002", 40, 30, { align: "right" });
+            doc.text("17 210 MONTLIEU LA GARDE", 40, 40, { align: "right" });
+            doc.text("E-mail : contact@palettes-distribution.com", 40, 50, { align: "right" });
+            doc.text("Tél. : 05 46 04 39 95", 40, 60, { align: "right" });
 
             // Infos client (à droite, sous l'en-tête)
-            doc.text(`Devis pour : ${companyName}`, 140, 80, { align: "right" });
-            doc.text(`Adresse : ${address}`, 140, 90, { align: "right" });
-            doc.text(`Date : ${new Date().toLocaleDateString()}`, 140, 100, { align: "right" });
+            doc.text(`Devis pour : ${companyName}`, 180, 80, { align: "right" });
+            doc.text(`Adresse : ${address}`, 180, 90, { align: "right" });
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 180, 100, { align: "right" });
 
             // Tableau des détails (centré au milieu)
             doc.autoTable({
@@ -156,25 +156,25 @@
             });
 
             // Totaux (à droite sous le tableau)
-            const totalsY = doc.lastAutoTable.finalY + 10;
-            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 140, totalsY, { align: "right" });
-            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 140, totalsY + 10, { align: "right" });
-            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 140, totalsY + 20, { align: "right" });
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 140, totalsY + 30, { align: "right" });
+            const totalsY = doc.lastAutoTable.finalY + 30;
+            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 180, totalsY, { align: "right" });
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 180, totalsY + 5, { align: "right" });
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 180, totalsY + 10, { align: "right" });
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 180, totalsY + 15, { align: "right" });
 
             // Bon pour accord (à gauche sous les totaux)
             const signatureY = totalsY + 50;
             doc.text("Bon pour accord :", 10, signatureY);
             doc.rect(10, signatureY + 10, 150, 30);
-            doc.text("Nom : ____________________", 20, signatureY + 20);
-            doc.text("Date : ____________________", 20, signatureY + 30);
-            doc.text("Signature : ____________________", 20, signatureY + 40);
+            doc.text("Nom : ____________________", 20, signatureY + 15);
+            doc.text("Date : ____________________", 20, signatureY + 25);
+            doc.text("Signature : ____________________", 20, signatureY + 35);
 
             // Mentions légales (en bas de la page)
             doc.setFontSize(10);
             doc.text(
                 "S.I.R.E.T. : 44390842100011 | TVA Intra : FR53443908421 | Capital : 300 281,00 Euros | N.A.F. : 1624Z",
-                10,
+                20,
                 280
             );
 
