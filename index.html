@@ -99,23 +99,13 @@
             <label for="quantity">Quantité :</label>
             <input type="number" id="quantity" min="1" required>
 
-            <label for="travelTime">Temps de trajet en voiture (h:mm) :</label>
-            <input type="text" id="travelTime" placeholder="Exemple : 1:58" required>
-
+            
             <button type="button" onclick="generatePDF()">Télécharger le devis</button>
         </form>
     </div>
 
     <script>
-        function parseTravelTime(timeString) {
-            const [hours, minutes] = timeString.split(":").map(Number);
-            return hours + (minutes / 60);
-        }
-
-        function convertToTruckTime(carTimeInHours) {
-            return carTimeInHours * 1.2 + 0.75; // 1.2 pour le camion + 45 min de déchargement
-        }
-
+        
         async function generatePDF() {
             const { jsPDF } = window.jspdf;
 
@@ -124,13 +114,7 @@
             const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
             const quantity = parseInt(document.getElementById("quantity").value);
-            const travelTime = document.getElementById("travelTime").value;
 
-            // Calcul transport
-            const carTimeInHours = parseTravelTime(travelTime);
-            const truckTimeInHours = convertToTruckTime(carTimeInHours);
-            const transportCost = truckTimeInHours * 63;
-            const transportWithMargin = transportCost * 1.2;
 
             // Tarifs palettes
             const prices = {
@@ -143,7 +127,7 @@
             const palettesTotalHT = pricePerUnit * quantity;
 
             // Totaux
-            const totalHT = palettesTotalHT + transportWithMargin;
+            const totalHT = palettesTotalHT;
             const tvaRate = 0.2;
             const totalTVA = totalHT * tvaRate;
             const totalTTC = totalHT + totalTVA;
@@ -169,8 +153,7 @@
                 startY: 110,
                 head: [["Désignation", "Quantité", "P.U. HT (€)", "Montant HT (€)"]],
                 body: [
-                    [paletteType, quantity, pricePerUnit.toFixed(2), palettesTotalHT.toFixed(2)],
-                    ["Transport", "-", "-", transportWithMargin.toFixed(2)],
+                    [paletteType, quantity, pricePerUnit.toFixed(2), palettesTotalHT.toFixed(2)]
                 ],
                 theme: "grid",
             });
