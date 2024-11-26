@@ -6,7 +6,7 @@
     <title>Devis - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-     <style>
+    <style>
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #4caf50, #2196f3, #f44336, #ddd);
@@ -33,12 +33,6 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 600px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-container:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
@@ -46,7 +40,6 @@
             font-size: 2rem;
             margin-bottom: 20px;
             color: #333;
-            text-transform: uppercase;
         }
 
         label {
@@ -64,13 +57,6 @@
             margin-bottom: 20px;
             border: 2px solid #ccc;
             border-radius: 5px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            border-color: #4caf50;
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
-            outline: none;
         }
 
         button {
@@ -90,50 +76,17 @@
             background: linear-gradient(45deg, #2196f3, #4caf50);
             transform: scale(1.05);
         }
-
-        button:active {
-            transform: scale(1);
-        }
-
-        .divider {
-            height: 3px;
-            background: linear-gradient(to right, #4caf50, #2196f3);
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-
-        .question {
-            color: #333;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .answer {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        /* Transition Effect */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-container {
-            animation: fadeIn 1s ease-out;
-        }
     </style>
 </head>
 <body>
-    <div>
+    <div class="form-container">
         <h1>Créer un devis</h1>
         <form id="quoteForm">
             <label for="companyName">Nom de l'entreprise :</label>
-            <input type="text" id="companyName" required><br>
+            <input type="text" id="companyName" required>
 
             <label for="address">Adresse :</label>
-            <input type="text" id="address" required><br>
+            <input type="text" id="address" required>
 
             <label for="paletteType">Type de palette :</label>
             <select id="paletteType" required>
@@ -141,10 +94,10 @@
                 <option value="800x1200">800x1200</option>
                 <option value="1000x1200">1000x1200</option>
                 <option value="1000x1200-ceinture">1000x1200 ceinturé</option>
-            </select><br>
+            </select>
 
             <label for="quantity">Quantité :</label>
-            <input type="number" id="quantity" min="1" required><br>
+            <input type="number" id="quantity" min="1" required>
 
             <button type="button" onclick="generatePDF()">Télécharger le devis</button>
         </form>
@@ -176,34 +129,22 @@
             // Initialiser jsPDF
             const doc = new jsPDF();
 
-            // Ajouter le logo
-            const logoBase64 = "data:image/png;base64,ZKpseXt..."; // Insérez ici le Base64 complet du logo
-            doc.addImage(logoBase64, "PNG", 30, 10, 120, 60);
-
-            // Informations générales à droite
+            // Informations en-tête
             doc.setFontSize(12);
-            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 180, 20, { align: "right" });
-            doc.text("4 ZA DU MILAN - BP 40002", 180, 30, { align: "right" });
-            doc.text("17 210 MONTLIEU LA GARDE", 180, 40, { align: "right" });
-            doc.text("E-mail : contact@palettes-distribution.com", 180, 50, { align: "right" });
-            doc.text("Tél. : 05 46 04 39 95", 180, 60, { align: "right" });
-
-            // Mentions légales
-            doc.setFontSize(10);
-            doc.text("S.I.R.E.T. : 44390842100011", 30, 80);
-            doc.text("TVA Intra : FR53443908421", 30, 90);
-            doc.text("Capital : 300 281,00 Euros", 30, 100);
-            doc.text("N.A.F. : 1624Z", 30, 110);
+            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 140, 20);
+            doc.text("4 ZA DU MILAN - BP 40002", 140, 30);
+            doc.text("17 210 MONTLIEU LA GARDE", 140, 40);
+            doc.text("E-mail : contact@palettes-distribution.com", 140, 50);
+            doc.text("Tél. : 05 46 04 39 95", 140, 60);
 
             // Infos client
-            doc.setFontSize(12);
-            doc.text(`Devis pour : ${companyName}`, 30, 130);
-            doc.text(`Adresse : ${address}`, 30, 140);
-            doc.text(`Date : ${new Date().toLocaleDateString()}`, 30, 150);
+            doc.text(`Devis pour : ${companyName}`, 30, 80);
+            doc.text(`Adresse : ${address}`, 30, 90);
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 30, 100);
 
             // Tableau des détails
             doc.autoTable({
-                startY: 160,
+                startY: 110,
                 head: [["Désignation", "Quantité", "P.U. HT (€)", "Montant HT (€)"]],
                 body: [
                     [paletteType, quantity, pricePerUnit.toFixed(2), totalHT.toFixed(2)],
@@ -213,23 +154,14 @@
 
             // Base HT, TVA, et Totaux encadrés
             const totalsY = doc.lastAutoTable.finalY + 10;
-            doc.rect(30, totalsY, 150, 20); // Encadré pour Base HT, TVA
-            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 35, totalsY + 7);
-            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 35, totalsY + 14);
-            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 35, totalsY + 21);
+            doc.rect(30, totalsY, 150, 30);
+            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 35, totalsY + 10);
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 35, totalsY + 20);
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 35, totalsY + 30);
 
             // Totaux encadrés à droite
             doc.rect(140, totalsY, 60, 30);
-            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 145, totalsY + 10);
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 145, totalsY + 20);
-
-            // Bon pour accord
-            const bonAccordY = totalsY + 50;
-            doc.text("Bon pour accord :", 30, bonAccordY);
-            doc.rect(30, bonAccordY + 10, 150, 40);
-            doc.text("Nom :", 35, bonAccordY + 25);
-            doc.text("Date :", 100, bonAccordY + 25);
-            doc.text("Signature :", 35, bonAccordY + 40);
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 145, totalsY + 10);
 
             // Télécharger le PDF
             doc.save(`Devis-${companyName}.pdf`);
@@ -237,4 +169,3 @@
     </script>
 </body>
 </html>
-
