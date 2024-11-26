@@ -132,20 +132,20 @@
             // Initialisation jsPDF
             const doc = new jsPDF();
 
-            // En-tête à droite
+            // En-tête
             doc.setFontSize(12);
-            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 90, 20, { align: "leftt" });
-            doc.text("4 ZA DU MILAN - BP 40002", 90, 30, { align: "left" });
-            doc.text("17 210 MONTLIEU LA GARDE", 90, 40, { align: "left" });
-            doc.text("E-mail : contact@palettes-distribution.com", 90, 50, { align: "left" });
-            doc.text("Tél. : 05 46 04 39 95", 90, 60, { align: "left" });
+            doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 30, 20);
+            doc.text("4 ZA DU MILAN - BP 40002", 30, 30);
+            doc.text("17 210 MONTLIEU LA GARDE", 30, 40);
+            doc.text("E-mail : contact@palettes-distribution.com", 30, 50);
+            doc.text("Tél. : 05 46 04 39 95", 30, 60);
 
-            // Infos client (à droite, sous l'en-tête)
-            doc.text(`Devis pour : ${companyName}`, 190, 80, { align: "right" });
-            doc.text(`Adresse : ${address}`, 190, 90, { align: "right" });
-            doc.text(`Date : ${new Date().toLocaleDateString()}`, 190, 100, { align: "right" });
+            // Infos client
+            doc.text(`Devis pour : ${companyName}`, 140, 80, { align: "right" });
+            doc.text(`Adresse : ${address}`, 140, 90, { align: "right" });
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 140, 100, { align: "right" });
 
-            // Tableau des détails (centré au milieu)
+            // Tableau des détails
             doc.autoTable({
                 startY: 110,
                 head: [["Désignation", "Quantité", "P.U. HT (€)", "Montant HT (€)"]],
@@ -155,38 +155,34 @@
                 theme: "grid",
             });
 
-             // Ajouter l'astérisque sous le tableau
-            const tableY = doc.lastAutoTable.finalY + 5;
+            // Astérisque sous le tableau
+            const tableY = doc.lastAutoTable.finalY + 10;
             doc.setFontSize(10);
-            doc.text(
-                "* Pour obtenir un coût précis du transport, veuillez nous contacter.",
-                30,
-            );
+            doc.text("* Pour obtenir un coût précis du transport, veuillez nous contacter.", 30, tableY);
 
-            // Totaux (à droite sous le tableau)
-            const totalsY = doc.lastAutoTable.finalY + 30;
-            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 190, totalsY, { align: "right" });
-            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 190, totalsY + 10, { align: "right" });
-            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 190, totalsY + 20, { align: "right" });
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 190, totalsY + 30, { align: "right" });
+            // Totaux
+            const totalsY = tableY + 10;
+            doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 140, totalsY, { align: "right" });
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 140, totalsY + 10, { align: "right" });
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 140, totalsY + 20, { align: "right" });
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 140, totalsY + 30, { align: "right" });
 
-            // Bon pour accord (à gauche sous les totaux)
-            const signatureY = totalsY + 50;
-            doc.text("Bon pour accord :", 10, signatureY);
-            doc.rect(10, signatureY + 10, 150, 30);
-            doc.text("Nom : ____________________", 20, signatureY + 15);
-            doc.text("Date : ____________________", 20, signatureY + 25);
-            doc.text("Signature : ____________________", 20, signatureY + 35);
+            // Bon pour accord
+            const signatureY = totalsY + 40;
+            doc.text("Bon pour accord :", 30, signatureY);
+            doc.rect(30, signatureY + 10, 150, 30);
+            doc.text("Nom : ____________________", 40, signatureY + 20);
+            doc.text("Date : ____________________", 40, signatureY + 30);
+            doc.text("Signature : ____________________", 40, signatureY + 40);
 
-            // Mentions légales (en bas de la page)
-            doc.setFontSize(10);
+            // Mentions légales
             doc.text(
                 "S.I.R.E.T. : 44390842100011 | TVA Intra : FR53443908421 | Capital : 300 281,00 Euros | N.A.F. : 1624Z",
-                20,
+                30,
                 280
             );
 
-            // Télécharger le devis
+            // Télécharger le PDF
             doc.save(`Devis-${companyName}.pdf`);
         }
     </script>
