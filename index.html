@@ -109,7 +109,7 @@
             doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 10, 40);
             doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 10, 50);
             doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 10, 60);
-            const pdfData = doc.output('datauristring');
+            const pdfData = doc.output('datauristring').split(',')[1]; // Conversion en base64
 
             // Paramètres pour EmailJS
             const templateParams = {
@@ -120,7 +120,7 @@
                 totalHT: totalHT.toFixed(2),
                 totalTVA: totalTVA.toFixed(2),
                 totalTTC: totalTTC.toFixed(2),
-                pdfData: pdfData // Données du PDF
+                pdfData: pdfData
             };
 
             // Envoi via EmailJS
@@ -135,3 +135,4 @@
     </script>
 </body>
 </html>
+
