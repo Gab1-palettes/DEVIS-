@@ -161,11 +161,11 @@
             doc.text("* Pour obtenir un coût précis du transport, veuillez nous contacter.", 20, tableY);
 
             // Totaux
-            const totalsY = tableY + 10;
+            const totalsY = tableY + 20;
             doc.text(`Base HT : ${totalHT.toFixed(2)} €`, 170, totalsY, { align: "right" });
-            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 170, totalsY + 20, { align: "right" });
-            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 170, totalsY + 30, { align: "right" });
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 170, totalsY + 40, { align: "right" });
+            doc.text(`Taux TVA : ${(tvaRate * 100).toFixed(2)} %`, 170, totalsY + 10, { align: "right" });
+            doc.text(`Montant TVA : ${totalTVA.toFixed(2)} €`, 170, totalsY + 20, { align: "right" });
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 170, totalsY + 30, { align: "right" });
 
             // Bon pour accord
             const signatureY = totalsY + 40;
