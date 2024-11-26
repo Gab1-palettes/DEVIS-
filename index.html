@@ -151,6 +151,10 @@
             // Initialisation jsPDF
             const doc = new jsPDF();
 
+            // Ajouter le logo
+            const logoBase64 = "data:image/png;base64,..."; // Remplacez "..." par le Base64 de votre logo
+            doc.addImage(logoBase64, "PNG", 160, 10, 40, 20);
+
             // En-tête
             doc.setFontSize(12);
             doc.text("SAS PALETTES DISTRIBUTION S.A.S.", 30, 20);
@@ -199,4 +203,3 @@
     </script>
 </body>
 </html>
-
