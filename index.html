@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demande de devis</title>
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,8 +57,8 @@
             <label for="companyName">Nom de l'entreprise :</label>
             <input type="text" id="companyName" name="companyName" required>
 
-            <label for="email">E-mail :</label>
-            <input type="email" id="email" name="email" required>
+            <label for="address">Adresse :</label>
+            <input type="text" id="address" name="address" required>
 
             <label for="paletteType">Type de palette :</label>
             <select id="paletteType" name="paletteType" required>
@@ -71,18 +71,17 @@
             <label for="quantity">Quantité :</label>
             <input type="number" id="quantity" name="quantity" min="1" required>
 
-            <button type="button" onclick="generateAndSendPDF()">Envoyer le devis</button>
+            <button type="button" onclick="generatePDF()">Télécharger le devis</button>
         </form>
-        <p id="result"></p>
     </div>
 
     <script>
-        emailjs.init('r9_EdMt6rbw2auf5S'); // Remplacez par votre clé publique EmailJS
-
-        async function generateAndSendPDF() {
+        async function generatePDF() {
             const { jsPDF } = window.jspdf;
+
+            // Récupérer les données du formulaire
             const companyName = document.getElementById("companyName").value;
-            const email = document.getElementById("email").value;
+            const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
             const quantity = parseInt(document.getElementById("quantity").value);
 
@@ -103,36 +102,41 @@
 
             // Génération du PDF
             const doc = new jsPDF();
-            doc.text(`Devis pour ${companyName}`, 10, 10);
-            doc.text(`Type de palette : ${paletteType}`, 10, 20);
-            doc.text(`Quantité : ${quantity}`, 10, 30);
-            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 10, 40);
-            doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 10, 50);
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 10, 60);
-            const pdfData = doc.output('datauristring').split(',')[1]; // Conversion en base64
 
-            // Paramètres pour EmailJS
-            const templateParams = {
-                companyName: companyName,
-                email: email,
-                paletteType: paletteType,
-                quantity: quantity,
-                totalHT: totalHT.toFixed(2),
-                totalTVA: totalTVA.toFixed(2),
-                totalTTC: totalTTC.toFixed(2),
-                pdfData: pdfData
-            };
+            // En-tête
+            doc.setFontSize(14);
+            doc.text("Palettes Distribution", 10, 10);
+            doc.setFontSize(10);
+            doc.text("4 ZA DU MILAN - BP 40002", 10, 15);
+            doc.text("17 210 MONTLIEU LA GARDE", 10, 20);
+            doc.text("E-mail : contact@palettes-distribution.com", 10, 25);
+            doc.text("Téléphone : 05 46 04 39 95", 10, 30);
 
-            // Envoi via EmailJS
-            emailjs.send('service_wgpcqsc', 'template_jw8ugjs', templateParams)
-                .then(response => {
-                    document.getElementById('result').innerText = `Devis envoyé avec succès à ${email}.`;
-                })
-                .catch(error => {
-                    document.getElementById('result').innerText = `Erreur lors de l'envoi : ${error.text}`;
-                });
+            // Infos client
+            doc.setFontSize(12);
+            doc.text(`Devis pour : ${companyName}`, 10, 45);
+            doc.text(`Adresse : ${address}`, 10, 50);
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 10, 55);
+
+            // Tableau des détails
+            doc.autoTable({
+                startY: 65,
+                head: [["Type de palette", "Quantité", "Prix unitaire HT (€)", "Montant HT (€)"]],
+                body: [
+                    [paletteType, quantity, pricePerPallet[paletteType].toFixed(2), (pricePerPallet[paletteType] * quantity).toFixed(2)],
+                    ["Transport", "", "-", transportCost.toFixed(2)]
+                ]
+            });
+
+            // Totaux
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 10, finalY);
+            doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 10, finalY + 5);
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 10, finalY + 10);
+
+            // Téléchargement du PDF
+            doc.save(`Devis-${companyName}.pdf`);
         }
     </script>
 </body>
 </html>
-
