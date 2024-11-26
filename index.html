@@ -169,8 +169,12 @@
             };
             const transportCost = 150;
             const tvaRate = 0.2;
+        const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcAAAAHACAYAAABPuoP8AAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4...";
 
-            // Calculs
+// Ajouter le logo en haut du PDF
+doc.addImage(logoBase64, "PNG", 10, 10, 50, 20);
+
+           // Calculs
             const totalHT = (pricePerPallet[paletteType] * quantity) + transportCost;
             const totalTVA = totalHT * tvaRate;
             const totalTTC = totalHT + totalTVA;
