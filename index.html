@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis Palettes Distribution</title>
+    <title>Devis - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
-          body {
+        body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #4caf50, #2196f3, #f44336, #ddd);
             background-size: 400% 400%;
@@ -186,14 +186,21 @@
             doc.text("E-mail : contact@palettes-distribution.com", 10, 25);
             doc.text("Téléphone : 05 46 04 39 95", 10, 30);
 
+            // Mentions légales
+            doc.setFontSize(10);
+            doc.text("S.I.R.E.T. : 44390842100011", 10, 35);
+            doc.text("TVA Intra : FR53443908421", 10, 40);
+            doc.text("Capital : 300 281,00 Euros", 10, 45);
+            doc.text("N.A.F. : 1624Z", 10, 50);
+
             // Infos client
-            doc.text(`Devis pour : ${companyName}`, 10, 45);
-            doc.text(`Adresse : ${address}`, 10, 50);
-            doc.text(`Date : ${new Date().toLocaleDateString()}`, 10, 55);
+            doc.text(`Devis pour : ${companyName}`, 10, 65);
+            doc.text(`Adresse : ${address}`, 10, 70);
+            doc.text(`Date : ${new Date().toLocaleDateString()}`, 10, 75);
 
             // Tableau des détails
             doc.autoTable({
-                startY: 65,
+                startY: 80,
                 head: [["Type de palette", "Quantité", "Prix unitaire HT (€)", "Montant HT (€)"]],
                 body: [
                     [paletteType, quantity, pricePerPallet[paletteType].toFixed(2), (pricePerPallet[paletteType] * quantity).toFixed(2)],
@@ -201,17 +208,24 @@
                 ]
             });
 
-            // Totaux
+            // Totaux encadrés
             const finalY = doc.lastAutoTable.finalY + 10;
-            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 10, finalY);
-            doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 10, finalY + 5);
-            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 10, finalY + 10);
+            doc.setDrawColor(0);
+            doc.setFillColor(240);
+            doc.rect(10, finalY, 190, 20, "F");
+            doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 12, finalY + 5);
+            doc.text(`Total TVA : ${totalTVA.toFixed(2)} €`, 12, finalY + 10);
+            doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 12, finalY + 15);
 
-            // Conditions générales de vente
-            doc.setFontSize(10);
-            doc.text("Conditions générales de vente :", 10, finalY + 20);
-            doc.text("1. Toutes nos ventes sont soumises aux CGV en vigueur.", 10, finalY + 25);
-            doc.text("2. En cas de litige, le tribunal de commerce de Saintes sera compétent.", 10, finalY + 30);
+            // Section "Bon pour accord"
+            const bonAccordY = finalY + 30;
+            doc.setFontSize(12);
+            doc.setDrawColor(0);
+            doc.rect(10, bonAccordY, 190, 30, "S");
+            doc.text("Bon pour accord :", 12, bonAccordY + 10);
+            doc.text("Nom :", 12, bonAccordY + 20);
+            doc.text("Date :", 80, bonAccordY + 20);
+            doc.text("Signature :", 140, bonAccordY + 20);
 
             // Téléchargement
             doc.save(`Devis-${companyName}.pdf`);
@@ -219,4 +233,3 @@
     </script>
 </body>
 </html>
-
