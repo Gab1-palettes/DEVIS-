@@ -78,19 +78,24 @@
             formData.append("attachment", pdfBlob, "Devis.pdf");
 
             // Test de la pièce jointe
-            console.log("Pièce jointe ajoutée :", formData.get("attachment"));
+            console.log("Vérification de la pièce jointe :", formData.get("attachment"));
 
-            const response = await fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
-                method: "POST",
-                body: formData
-            });
+            try {
+                const response = await fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
+                    method: "POST",
+                    body: formData
+                });
 
-            if (response.ok) {
-                alert("Le devis a été envoyé avec succès !");
-            } else {
-                const errorText = await response.text();
-                console.error("Erreur EmailJS :", errorText);
-                alert("Erreur lors de l'envoi du devis. Veuillez réessayer.");
+                if (response.ok) {
+                    alert("Le devis a été envoyé avec succès !");
+                } else {
+                    const errorText = await response.text();
+                    console.error("Erreur EmailJS :", errorText);
+                    alert("Erreur lors de l'envoi du devis. Veuillez vérifier la console.");
+                }
+            } catch (error) {
+                console.error("Erreur réseau :", error);
+                alert("Une erreur réseau s'est produite. Veuillez réessayer.");
             }
         }
 
@@ -111,6 +116,9 @@
             doc.text(`Quantité : ${quantity}`, 20, 70);
             doc.text("Nous vous contacterons pour plus de détails.", 20, 90);
 
+            // Téléchargement local pour vérifier si le fichier est correct
+            doc.save("Devis-test.pdf");
+
             // Convertir le PDF en Blob
             const pdfBlob = doc.output("blob");
 
@@ -128,6 +136,7 @@
     </script>
 </body>
 </html>
+
 
 
 
