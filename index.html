@@ -41,6 +41,50 @@
     </div>
 
     <script>
+        function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expression régulière pour vérifier le format de l'e-mail
+    return emailRegex.test(email);
+}
+
+async function generateAndSendPDF() {
+    const email = document.getElementById("email").value;
+
+    // Vérifier l'adresse e-mail
+    if (!validateEmail(email)) {
+        alert("Veuillez entrer une adresse e-mail valide.");
+        return; // Arrête l'exécution si l'e-mail n'est pas valide
+    }
+
+    // Si l'e-mail est valide, continuez avec la génération du PDF
+    const { jsPDF } = window.jspdf;
+
+    // Récupération des données du formulaire
+    const companyName = document.getElementById("companyName").value;
+    const address = document.getElementById("address").value;
+    const paletteType = document.getElementById("paletteType").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+
+    // Création du PDF
+    const doc = new jsPDF();
+    doc.text("SAS PALETTES DISTRIBUTION", 20, 20);
+    doc.text(`Nom de l'entreprise : ${companyName}`, 20, 40);
+    doc.text(`Adresse : ${address}`, 20, 50);
+    doc.text(`Type de palette : ${paletteType}`, 20, 60);
+    doc.text(`Quantité : ${quantity}`, 20, 70);
+    doc.text("Nous vous contacterons pour plus de détails.", 20, 90);
+
+    const pdfBlob = doc.output("blob");
+
+    // Envoi du PDF par e-mail
+    try {
+        await sendEmail(pdfBlob, email);
+        alert("Le devis a été envoyé avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de l'envoi :", error);
+        alert("Une erreur s'est produite lors de l'envoi du devis. Veuillez réessayer.");
+    }
+}
+
         // Initialisation d'EmailJS
         emailjs.init("r9_EdMt6rbw2auf5Sc");
 
