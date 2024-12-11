@@ -65,13 +65,13 @@
 
     <script>
         // Initialisation d'EmailJS
-        emailjs.init("r9_EdMt6rbw2auf5Sc"); // Remplacez par votre User ID EmailJS
+        emailjs.init("r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID EmailJS
 
         async function sendEmail(pdfBlob) {
             const formData = new FormData();
             formData.append("service_id", "service_wgpcqsc"); // Remplacez par votre Service ID
             formData.append("template_id", "template_jw8ugjs"); // Remplacez par votre Template ID
-            formData.append("user_id", "r9_EdMt6rbw2auf5Sc"); // Remplacez par votre User ID
+            formData.append("user_id", "r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID
             formData.append("to_email", "fillat@palettes-distribution.com"); // Adresse e-mail fixe
             formData.append("attachment", pdfBlob, "Devis.pdf");
 
