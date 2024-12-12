@@ -5,35 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devis Professionnel - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #FFB74D, #FF8A65, #F4511E);
+            animation: gradientBG 8s infinite alternate;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
         }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
         .form-container {
-            max-width: 600px;
-            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            text-align: center;
         }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
         label {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
             display: block;
-            margin: 10px 0 5px;
+            text-align: left;
         }
+
         input, select, button {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ccc;
+            border: 2px solid #ddd;
             border-radius: 5px;
+            font-size: 1rem;
         }
+
         button {
-            background-color: #4caf50;
+            background-color: #FF5722;
             color: white;
+            font-weight: bold;
             border: none;
             cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
         }
+
         button:hover {
-            background-color: #45a049;
+            background-color: #E64A19;
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -42,13 +84,16 @@
         <h1>Créer un devis</h1>
         <form id="quoteForm">
             <label for="clientEmail">Adresse e-mail du client :</label>
-            <input type="email" id="clientEmail" required>
+            <input type="email" id="clientEmail" required placeholder="Entrez l'email du client">
+
+            <label for="clientName">Nom du client :</label>
+            <input type="text" id="clientName" required placeholder="Nom complet du client">
 
             <label for="companyName">Nom de l'entreprise :</label>
-            <input type="text" id="companyName" required>
+            <input type="text" id="companyName" required placeholder="Nom de l'entreprise">
 
             <label for="address">Adresse :</label>
-            <input type="text" id="address" required>
+            <input type="text" id="address" required placeholder="Adresse complète">
 
             <label for="paletteType">Type de palette :</label>
             <select id="paletteType" required>
@@ -59,11 +104,12 @@
             </select>
 
             <label for="quantity">Quantité :</label>
-            <input type="number" id="quantity" min="1" required>
+            <input type="number" id="quantity" min="1" required placeholder="Nombre de palettes">
 
             <button type="button" onclick="generateAndSendPDF()">Envoyer le devis</button>
         </form>
     </div>
+    <footer>© 2024 Palettes Distribution - Tous droits réservés</footer>
 
     <script>
         // Initialisation d'EmailJS
@@ -72,20 +118,38 @@
         async function generateAndSendPDF() {
             // Récupération des données du formulaire
             const clientEmail = document.getElementById("clientEmail").value;
+            const clientName = document.getElementById("clientName").value;
             const companyName = document.getElementById("companyName").value;
             const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
-            const quantity = document.getElementById("quantity").value;
+            const quantity = parseInt(document.getElementById("quantity").value);
 
-            // Génération du PDF avec jsPDF
+            // Génération d'un PDF professionnel avec jsPDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("SAS PALETTES DISTRIBUTION", 20, 20);
-            doc.text(`Nom de l'entreprise : ${companyName}`, 20, 40);
-            doc.text(`Adresse : ${address}`, 20, 50);
-            doc.text(`Type de palette : ${paletteType}`, 20, 60);
-            doc.text(`Quantité : ${quantity}`, 20, 70);
-            doc.text("Nous vous contacterons pour plus de détails.", 20, 90);
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("SAS PALETTES DISTRIBUTION", 105, 15, { align: "center" });
+            doc.setFont("Helvetica", "normal");
+            doc.text("4 ZA DU MILAN - BP 40002, 17210 MONTLIEU LA GARDE", 105, 22, { align: "center" });
+            doc.text("Tél. : 05 46 04 39 95 - contact@palettes-distribution.com", 105, 29, { align: "center" });
+
+            // Informations client
+            doc.setFontSize(12);
+            doc.text(`Devis pour : ${clientName}`, 20, 40);
+            doc.text(`Nom de l'entreprise : ${companyName}`, 20, 48);
+            doc.text(`Adresse : ${address}`, 20, 56);
+
+            // Détails de la commande
+            doc.autoTable({
+                startY: 70,
+                head: [["Type de palette", "Quantité"]],
+                body: [[paletteType, quantity]],
+                theme: "striped",
+                headStyles: { fillColor: [240, 128, 128] }
+            });
+
+            doc.text("Merci pour votre commande.", 20, doc.lastAutoTable.finalY + 20);
 
             // Convertir le PDF en Base64
             const pdfBase64 = doc.output("datauristring").split(",")[1];
@@ -93,14 +157,15 @@
             // Préparer les données pour EmailJS
             const templateParams = {
                 client_email: clientEmail,
+                client_name: clientName,
                 company_name: companyName,
                 address: address,
                 palette_type: paletteType,
                 quantity: quantity,
-                attachment: pdfBase64, // Le fichier PDF en Base64
+                attachment: pdfBase64,
             };
 
-            // Envoi de l'e-mail via EmailJS
+            // Envoi du devis au client via EmailJS
             try {
                 const response = await emailjs.send(
                     "service_wgpcqsc", // Remplacez par votre Service ID
@@ -108,7 +173,7 @@
                     templateParams
                 );
                 if (response.status === 200) {
-                    alert("Le devis a été envoyé avec succès !");
+                    alert("Le devis a été envoyé au client avec succès !");
                 }
             } catch (error) {
                 console.error("Erreur lors de l'envoi du devis :", error);
