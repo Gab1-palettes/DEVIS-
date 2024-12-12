@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devis Professionnel - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #FFB74D, #FF8A65, #F4511E);
@@ -83,9 +82,6 @@
     <div class="form-container">
         <h1>Créer un devis</h1>
         <form id="quoteForm">
-            <label for="clientEmail">Adresse e-mail du client :</label>
-            <input type="email" id="clientEmail" required placeholder="Entrez l'email du client">
-
             <label for="clientName">Nom du client :</label>
             <input type="text" id="clientName" required placeholder="Nom complet du client">
 
@@ -106,7 +102,7 @@
             <label for="quantity">Quantité :</label>
             <input type="number" id="quantity" min="1" required placeholder="Nombre de palettes">
 
-            <button type="button" onclick="generateAndSendPDF()">Envoyer le devis</button>
+            <button type="button" onclick="processForm()">Télécharger et envoyer</button>
         </form>
     </div>
     <footer>© 2024 Palettes Distribution - Tous droits réservés</footer>
@@ -115,16 +111,15 @@
         // Initialisation d'EmailJS
         emailjs.init("r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID EmailJS
 
-        async function generateAndSendPDF() {
+        async function processForm() {
             // Récupération des données du formulaire
-            const clientEmail = document.getElementById("clientEmail").value;
             const clientName = document.getElementById("clientName").value;
             const companyName = document.getElementById("companyName").value;
             const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
             const quantity = parseInt(document.getElementById("quantity").value);
 
-            // Génération d'un PDF professionnel avec jsPDF
+            // Génération du PDF pour le client
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.setFont("Helvetica", "bold");
@@ -136,36 +131,28 @@
 
             // Informations client
             doc.setFontSize(12);
-            doc.text(`Devis pour : ${clientName}`, 20, 40);
+            doc.text(`Nom du client : ${clientName}`, 20, 40);
             doc.text(`Nom de l'entreprise : ${companyName}`, 20, 48);
             doc.text(`Adresse : ${address}`, 20, 56);
 
             // Détails de la commande
-            doc.autoTable({
-                startY: 70,
-                head: [["Type de palette", "Quantité"]],
-                body: [[paletteType, quantity]],
-                theme: "striped",
-                headStyles: { fillColor: [240, 128, 128] }
-            });
+            doc.text("Détails de la commande :", 20, 70);
+            doc.text(`Type de palette : ${paletteType}`, 20, 78);
+            doc.text(`Quantité : ${quantity}`, 20, 86);
 
-            doc.text("Merci pour votre commande.", 20, doc.lastAutoTable.finalY + 20);
+            // Téléchargement du PDF pour le client
+            doc.save(`Devis-${clientName}.pdf`);
 
-            // Convertir le PDF en Base64
-            const pdfBase64 = doc.output("datauristring").split(",")[1];
-
-            // Préparer les données pour EmailJS
+            // Préparation des données pour l'e-mail
             const templateParams = {
-                client_email: clientEmail,
                 client_name: clientName,
                 company_name: companyName,
                 address: address,
                 palette_type: paletteType,
                 quantity: quantity,
-                attachment: pdfBase64,
             };
 
-            // Envoi du devis au client via EmailJS
+            // Envoi des informations par e-mail
             try {
                 const response = await emailjs.send(
                     "service_wgpcqsc", // Remplacez par votre Service ID
@@ -173,16 +160,17 @@
                     templateParams
                 );
                 if (response.status === 200) {
-                    alert("Le devis a été envoyé au client avec succès !");
+                    alert("Les informations ont été envoyées avec succès à votre équipe !");
                 }
             } catch (error) {
-                console.error("Erreur lors de l'envoi du devis :", error);
-                alert("Une erreur s'est produite lors de l'envoi du devis. Veuillez réessayer.");
+                console.error("Erreur lors de l'envoi des informations :", error);
+                alert("Une erreur s'est produite lors de l'envoi des informations. Veuillez réessayer.");
             }
         }
     </script>
 </body>
 </html>
+
 
 
 
