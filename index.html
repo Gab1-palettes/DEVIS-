@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devis Professionnel - Palettes Distribution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <style>
         body {
@@ -42,6 +41,9 @@
     <div class="form-container">
         <h1>Créer un devis</h1>
         <form id="quoteForm">
+            <label for="clientEmail">Adresse e-mail du client :</label>
+            <input type="email" id="clientEmail" required>
+
             <label for="companyName">Nom de l'entreprise :</label>
             <input type="text" id="companyName" required>
 
@@ -67,46 +69,15 @@
         // Initialisation d'EmailJS
         emailjs.init("r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID EmailJS
 
-        async function sendEmail(pdfBlob) {
-            const formData = new FormData();
-            formData.append("service_id", "service_wgpcqsc"); // Remplacez par votre Service ID
-            formData.append("template_id", "template_jw8ugjs"); // Remplacez par votre Template ID
-            formData.append("user_id", "r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID
-            formData.append("to_email", "fillat@palettes-distribution.com"); // Adresse e-mail fixe
-
-            // Attachement du PDF
-            formData.append("attachment", pdfBlob, "Devis.pdf");
-
-            // Test de la pièce jointe
-            console.log("Vérification de la pièce jointe :", formData.get("attachment"));
-
-            try {
-                const response = await fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (response.ok) {
-                    alert("Le devis a été envoyé avec succès !");
-                } else {
-                    const errorText = await response.text();
-                    console.error("Erreur EmailJS :", errorText);
-                    alert("Erreur lors de l'envoi du devis. Veuillez vérifier la console.");
-                }
-            } catch (error) {
-                console.error("Erreur réseau :", error);
-                alert("Une erreur réseau s'est produite. Veuillez réessayer.");
-            }
-        }
-
         async function generateAndSendPDF() {
             // Récupération des données du formulaire
+            const clientEmail = document.getElementById("clientEmail").value;
             const companyName = document.getElementById("companyName").value;
             const address = document.getElementById("address").value;
             const paletteType = document.getElementById("paletteType").value;
-            const quantity = parseInt(document.getElementById("quantity").value);
+            const quantity = document.getElementById("quantity").value;
 
-            // Génération du PDF
+            // Génération du PDF avec jsPDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text("SAS PALETTES DISTRIBUTION", 20, 20);
@@ -116,20 +87,31 @@
             doc.text(`Quantité : ${quantity}`, 20, 70);
             doc.text("Nous vous contacterons pour plus de détails.", 20, 90);
 
-            // Téléchargement local pour vérifier si le fichier est correct
-            doc.save("Devis-test.pdf");
+            // Convertir le PDF en Base64
+            const pdfBase64 = doc.output("datauristring").split(",")[1];
 
-            // Convertir le PDF en Blob
-            const pdfBlob = doc.output("blob");
+            // Préparer les données pour EmailJS
+            const templateParams = {
+                client_email: clientEmail,
+                company_name: companyName,
+                address: address,
+                palette_type: paletteType,
+                quantity: quantity,
+                attachment: pdfBase64, // Le fichier PDF en Base64
+            };
 
-            // Tester si le fichier est généré
-            console.log("PDF Blob généré :", pdfBlob);
-
-            // Envoi du PDF par e-mail
+            // Envoi de l'e-mail via EmailJS
             try {
-                await sendEmail(pdfBlob);
+                const response = await emailjs.send(
+                    "service_wgpcqsc", // Remplacez par votre Service ID
+                    "template_jw8ugjs", // Remplacez par votre Template ID
+                    templateParams
+                );
+                if (response.status === 200) {
+                    alert("Le devis a été envoyé avec succès !");
+                }
             } catch (error) {
-                console.error("Erreur lors de l'envoi :", error);
+                console.error("Erreur lors de l'envoi du devis :", error);
                 alert("Une erreur s'est produite lors de l'envoi du devis. Veuillez réessayer.");
             }
         }
