@@ -1,175 +1,160 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devis Professionnel - Palettes Distribution</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #FFB74D, #FF8A65, #F4511E);
-            animation: gradientBG 8s infinite alternate;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: white;
-        }
+import React, { useEffect, useRef, useState } from "react";
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
+/**
+ * DEMO 100% FRONT — Fonctionne tout de suite (aucun backend)
+ * - Bouton "Essayer" + zone de chat simulée (devis, plan, panier, livraison)
+ * - Parfait pour une mise en ligne rapide (Netlify / GitHub Pages)
+ * - Copiez/collez tel quel dans votre app React (Tailwind recommandé)
+ */
 
-        .form-container {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            text-align: center;
-        }
+// Styles utilitaires minimalistes (au cas où Tailwind n'est pas présent dans l'aperçu)
+const S = {
+  page: "min-h-screen w-full bg-[rgba(14,122,94,0.95)] text-white flex flex-col",
+  container: "max-w-4xl w-full mx-auto px-6",
+  hero: "py-10 md:py-14 flex flex-col md:flex-row items-center md:items-end justify-between gap-6",
+  brand: "text-2xl md:text-3xl font-bold tracking-wide",
+  sub: "text-sm md:text-base text-white/80",
+  cta: "inline-flex items-center gap-2 rounded-xl bg-white text-emerald-700 px-5 py-3 hover:bg-emerald-50 transition",
+  card: "bg-white rounded-2xl shadow-xl text-slate-900",
+  cardInner: "p-5 md:p-6",
+  hint: "text-xs text-white/80 mt-2",
+  chatWrap: "h-[62vh] max-h-[72vh] flex flex-col",
+  chatScroll: "flex-1 overflow-y-auto space-y-3 p-4 bg-white/90",
+  chatInputBar: "border-t border-slate-200 bg-white p-3",
+  input: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500",
+  sendBtn: "inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2",
+  quickGrid: "grid grid-cols-2 md:grid-cols-4 gap-2",
+  quickBtn: "rounded-lg bg-emerald-50 text-emerald-800 px-3 py-2 text-sm hover:bg-emerald-100",
+  bubbleBot: "max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow bg-white text-slate-900",
+  bubbleUser: "max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow bg-emerald-100 text-emerald-900 ml-auto",
+};
 
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-            display: block;
-            text-align: left;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        button {
-            background-color: #FF5722;
-            color: white;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
-        }
-
-        button:hover {
-            background-color: #E64A19;
-            transform: scale(1.05);
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h1>Créer un devis</h1>
-        <form id="quoteForm">
-            <label for="clientName">Nom du client :</label>
-            <input type="text" id="clientName" required placeholder="Nom complet du client">
-
-            <label for="companyName">Nom de l'entreprise :</label>
-            <input type="text" id="companyName" required placeholder="Nom de l'entreprise">
-
-            <label for="address">Adresse :</label>
-            <input type="text" id="address" required placeholder="Adresse complète">
-
-            <label for="paletteType">Type de palette :</label>
-            <select id="paletteType" required>
-                <option value="600x800">600x800</option>
-                <option value="800x1200">800x1200</option>
-                <option value="1000x1200">1000x1200</option>
-                <option value="1000x1200-ceinture">1000x1200 ceinturé</option>
-            </select>
-
-            <label for="quantity">Quantité :</label>
-            <input type="number" id="quantity" min="1" required placeholder="Nombre de palettes">
-
-            <button type="button" onclick="processForm()">Télécharger et envoyer</button>
-        </form>
+function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
+  return (
+    <div className={role === 'bot' ? S.bubbleBot : S.bubbleUser}>
+      <div className="whitespace-pre-wrap leading-relaxed">{text}</div>
     </div>
-    <footer>© 2024 Palettes Distribution - Tous droits réservés</footer>
+  );
+}
 
-    <script>
-        // Initialisation d'EmailJS
-        emailjs.init("r9_EdMt6rbw2auf5S"); // Remplacez par votre User ID EmailJS
+const SCRIPT = [
+  { role: 'bot', text: "Bonjour et bienvenue chez AGORA. Je peux créer un devis, un plan, constituer un panier et organiser la livraison." },
+];
 
-        async function processForm() {
-            // Récupération des données du formulaire
-            const clientName = document.getElementById("clientName").value;
-            const companyName = document.getElementById("companyName").value;
-            const address = document.getElementById("address").value;
-            const paletteType = document.getElementById("paletteType").value;
-            const quantity = parseInt(document.getElementById("quantity").value);
+export default function AoaDemoWorking() {
+  const [msgs, setMsgs] = useState<{role:'bot'|'user'; text:string}[]>(SCRIPT);
+  const [val, setVal] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-            // Génération du PDF pour le client
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFont("Helvetica", "bold");
-            doc.setFontSize(14);
-            doc.text("SAS PALETTES DISTRIBUTION", 105, 15, { align: "center" });
-            doc.setFont("Helvetica", "normal");
-            doc.text("4 ZA DU MILAN - BP 40002, 17210 MONTLIEU LA GARDE", 105, 22, { align: "center" });
-            doc.text("Tél. : 05 46 04 39 95 - contact@palettes-distribution.com", 105, 29, { align: "center" });
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [msgs, busy]);
 
-            // Informations client
-            doc.setFontSize(12);
-            doc.text(`Nom du client : ${clientName}`, 20, 40);
-            doc.text(`Nom de l'entreprise : ${companyName}`, 20, 48);
-            doc.text(`Adresse : ${address}`, 20, 56);
+  function reply(userText: string) {
+    const lower = userText.toLowerCase();
+    let answer = "Je peux aider avec un devis, un plan, un panier et la livraison.";
+    if (/(devis|quote)/i.test(lower)) {
+      answer = "Devis créé : 4 modules 845×1200 mm à 72 € HT l’unité. Total : 288 € HT. Voulez‑vous l’envoyer par email ?";
+    } else if (/(plan|schéma|design)/i.test(lower)) {
+      answer = "Plan généré : modèle hexagonal 4 m (8 pers), 6 côtés, 2 entrées. Export PDF disponible.";
+    } else if (/(panier|cart|ajoute|ajouter)/i.test(lower)) {
+      answer = "Produit(s) ajouté(s) au panier. Souhaitez‑vous appliquer la remise pro ou poursuivre au tarif particulier ?";
+    } else if (/(livraison|delivery|transport|truck)/i.test(lower)) {
+      answer = "Livraison express sous 72 h possible. Merci d’indiquer l’adresse et le créneau souhaité.";
+    }
+    return answer;
+  }
 
-            // Détails de la commande
-            doc.text("Détails de la commande :", 20, 70);
-            doc.text(`Type de palette : ${paletteType}`, 20, 78);
-            doc.text(`Quantité : ${quantity}`, 20, 86);
+  function send(text?: string) {
+    const t = (text ?? val).trim();
+    if (!t) return;
+    setVal("");
+    setMsgs((m) => [...m, { role: 'user', text: t }]);
+    setBusy(true);
+    setTimeout(() => {
+      setMsgs((m) => [...m, { role: 'bot', text: reply(t) }]);
+      setBusy(false);
+    }, 650);
+  }
 
-            // Téléchargement du PDF pour le client
-            doc.save(`Devis-${clientName}.pdf`);
+  return (
+    <div className={S.page}>
+      {/* HERO */}
+      <div className={`${S.container} ${S.hero}`}>
+        <div>
+          <div className={S.brand}>AGORA • AOA Bot</div>
+          <div className={S.sub}>Démo interactive — devis, plan, panier, livraison (simulation front‑end)</div>
+        </div>
+        <a href="#demo" className={S.cta}>
+          🚀 Essayer la démo
+        </a>
+      </div>
 
-            // Préparation des données pour l'e-mail
-            const templateParams = {
-                client_name: clientName,
-                company_name: companyName,
-                address: address,
-                palette_type: paletteType,
-                quantity: quantity,
-            };
+      {/* DEMO */}
+      <div id="demo" className={`${S.container} mb-10`}>
+        <div className={S.card}>
+          <div className={S.cardInner}>
+            <div className="mb-3 text-sm text-slate-600">
+              Astuce : cliquez sur un bouton rapide puis envoyez un message (ex: « Créer un devis pour 4 modules »).
+            </div>
 
-            // Envoi des informations par e-mail
-            try {
-                const response = await emailjs.send(
-                    "service_wgpcqsc", // Remplacez par votre Service ID
-                    "template_jw8ugjs", // Remplacez par votre Template ID
-                    templateParams
-                );
-                if (response.status === 200) {
-                    alert("Les informations ont été envoyées avec succès à votre équipe !");
-                }
-            } catch (error) {
-                console.error("Erreur lors de l'envoi des informations :", error);
-                alert("Une erreur s'est produite lors de l'envoi des informations. Veuillez réessayer.");
-            }
-        }
-    </script>
-</body>
-</html>
+            <div className={S.quickGrid}>
+              <button className={S.quickBtn} onClick={() => send("Créer un devis pour 4 modules")}>Devis</button>
+              <button className={S.quickBtn} onClick={() => send("Générer un plan 4 m pour 8 personnes")}>Plan</button>
+              <button className={S.quickBtn} onClick={() => send("Ajoute au panier")}>Panier</button>
+              <button className={S.quickBtn} onClick={() => send("Propose une livraison")}>Livraison</button>
+            </div>
+
+            <div ref={scrollRef} className={`${S.chatWrap}`}>
+              <div className={S.chatScroll}>
+                {msgs.map((m, i) => (
+                  <Bubble key={i} role={m.role} text={m.text} />
+                ))}
+                {busy && (
+                  <div className="text-slate-500 text-sm">AOA est en train d'écrire…</div>
+                )}
+              </div>
+              <div className={S.chatInputBar}>
+                <form
+                  onSubmit={(e) => { e.preventDefault(); send(); }}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    className={S.input}
+                    placeholder="Écrivez un message…"
+                    value={val}
+                    onChange={(e) => setVal(e.target.value)}
+                  />
+                  <button type="submit" className={S.sendBtn}>Envoyer</button>
+                </form>
+              </div>
+            </div>
+
+            <div className="mt-3 text-xs text-slate-500">
+              Simulation côté client uniquement. Les prix/quantités sont indicatifs pour la démo.
+            </div>
+          </div>
+        </div>
+        <div className={S.hint}>Partage LinkedIn : publiez un lien vers cette page hébergée (cf. consignes ci‑dessous).</div>
+      </div>
+
+      {/* FOOTER INSTRUCTIONS */}
+      <div className="w-full bg-[rgba(10,46,42,0.9)]">
+        <div className={`${S.container} py-4 text-xs space-y-1`}>
+          <div className="opacity-90">Comment la mettre en ligne rapidement :</div>
+          <ol className="list-decimal ml-5 opacity-90 space-y-1">
+            <li><b>Netlify</b> (le plus simple) : créez un nouveau site, glissez‑déposez un build (Vite/Next) contenant ce composant sur une page « /demo ».</li>
+            <li><b>GitHub Pages</b> : créez un repo, ajoutez un index.html qui monte ce composant, activez Pages, publiez l’URL.</li>
+            <li><b>WordPress</b> : insérez une div #demo et embarquez le bundle du composant (iframe possible si besoin).</li>
+          </ol>
+          <div className="opacity-70">Texte de post LinkedIn suggéré : « Testez notre assistant AGORA (devis, plan, panier, livraison) → lien en commentaire ».</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 
 
